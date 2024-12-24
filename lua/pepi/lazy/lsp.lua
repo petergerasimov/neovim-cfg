@@ -34,6 +34,11 @@ return {
                 "lua_ls",
                 "rust_analyzer",
                 "gopls",
+		"ts_ls",
+		"biome",
+		"phpactor",
+		-- fix for arm https://github.com/mason-org/mason-registry/issues/5800#issuecomment-2156640019
+		"clangd",
             },
             handlers = {
                 function(server_name) -- default handler (optional)
@@ -86,7 +91,7 @@ return {
             mapping = cmp.mapping.preset.insert({
                 ['<C-p>'] = cmp.mapping.select_prev_item(cmp_select),
                 ['<C-n>'] = cmp.mapping.select_next_item(cmp_select),
-                ['<C-y>'] = cmp.mapping.confirm({ select = true }),
+                ['<Tab>'] = cmp.mapping.confirm({ select = true }),
                 ["<C-Space>"] = cmp.mapping.complete(),
             }),
             sources = cmp.config.sources({
@@ -110,3 +115,4 @@ return {
         })
     end
 }
+
