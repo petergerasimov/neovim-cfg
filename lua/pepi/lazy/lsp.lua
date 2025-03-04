@@ -27,6 +27,37 @@ return {
             vim.lsp.protocol.make_client_capabilities(),
             cmp_lsp.default_capabilities())
 
+
+	local on_attach = function(client, bufnr)
+		function bufoptsWithDesc(desc)
+			return { silent = true, buffer = bufnr, desc = desc }
+		end 
+		vim.keymap.set("n", "<F3>", function()
+			-- when rename opens the prompt, this autocommand will trigger
+			-- it will "press" CTRL-F to enter the command-line window `:h cmdwin`
+			-- in this window I can use normal mode keybindings
+			local cmdId
+			cmdId = vim.api.nvim_create_autocmd({ "CmdlineEnter" }, {
+				callback = function()
+					local key = vim.api.nvim_replace_termcodes("<C-f>", true, false, true)
+					vim.api.nvim_feedkeys(key, "c", false)
+					vim.api.nvim_feedkeys("0", "n", false)
+					-- autocmd was triggered and so we can remove the ID and return true to delete the autocmd
+					cmdId = nil
+					return true
+				end,
+			})
+			vim.lsp.buf.rename()
+			-- if LPS couldn't trigger rename on the symbol, clear the autocmd
+			vim.defer_fn(function()
+				-- the cmdId is not nil only if the LSP failed to rename
+				if cmdId then
+					vim.api.nvim_del_autocmd(cmdId)
+				end
+			end, 500)
+		end, bufoptsWithDesc("Rename symbol"))
+	end
+
         require("fidget").setup({})
         require("mason").setup()
         require("mason-lspconfig").setup({
@@ -43,8 +74,9 @@ return {
             handlers = {
                 function(server_name) -- default handler (optional)
                     require("lspconfig")[server_name].setup {
-                        capabilities = capabilities
-                    }
+                        capabilities = capabilities,
+                	on_attach = on_attach
+		}
                 end,
 
                 zls = function()
@@ -92,6 +124,7 @@ return {
                 ['<C-p>'] = cmp.mapping.select_prev_item(cmp_select),
                 ['<C-n>'] = cmp.mapping.select_next_item(cmp_select),
                 ['<Tab>'] = cmp.mapping.confirm({ select = true }),
+                ['<CR>'] = cmp.mapping.confirm({ select = true }),
                 ["<C-Space>"] = cmp.mapping.complete(),
             }),
             sources = cmp.config.sources({
