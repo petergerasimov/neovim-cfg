@@ -56,6 +56,17 @@ return {
 				end
 			end, 500)
 		end, bufoptsWithDesc("Rename symbol"))
+		if client.supports_method("textDocument/formatting") then
+			vim.api.nvim_clear_autocmds({ group = "PepiGroup", buffer = bufnr })
+
+			vim.api.nvim_create_autocmd("BufWritePre", {
+				group = vim.api.nvim_create_augroup("PepiGroup", { clear = true }),
+				buffer = bufnr,
+				callback = function()
+					vim.lsp.buf.format({ bufnr = bufnr })
+				end,
+			})
+		end
 	end
 
         require("fidget").setup({})

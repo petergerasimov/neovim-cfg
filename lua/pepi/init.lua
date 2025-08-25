@@ -3,7 +3,7 @@ require("pepi.remap")
 require("pepi.lazy_init")
 
 local augroup = vim.api.nvim_create_augroup
-local PepiGroup = augroup('ThePrimeagen', {})
+local PepiGroup = augroup('PepiGroup', {})
 
 local autocmd = vim.api.nvim_create_autocmd
 local yank_group = augroup('HighlightYank', {})
@@ -57,3 +57,11 @@ vim.g.netrw_browse_split = 0
 vim.g.netrw_banner = 0
 vim.g.netrw_winsize = 25
 vim.opt.clipboard:append { 'unnamedplus' }
+vim.diagnostic.config({
+	virtual_text = true,  -- Show inline diagnostics
+	signs = true,         -- Show signs (E, W, etc.)
+	underline = true,     -- Underline problem text
+	update_in_insert = false,
+	severity_sort = true,
+})
+
